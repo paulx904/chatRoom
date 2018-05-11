@@ -2,7 +2,11 @@
 import socket
 import threading
 from time import gmtime, strftime
-
+import datetime
+x = datetime.datetime.now() #現在時間
+x.hour   #時
+x.minute #分
+x.second #秒 59
 
 class Server:
     def __init__(self, host, port):
@@ -54,7 +58,7 @@ class Server:
                 recvedMsg = myconnection.recv(1024).decode()
                 if recvedMsg:
                     print(self.mydict[connNumber], ':', recvedMsg)
-                    self.tellOthers(connNumber, self.mydict[connNumber]+' :'+recvedMsg)
+                    self.tellOthers(connNumber, self.mydict[connNumber]+' :'+recvedMsg+'\t'+'['+str(x.hour)+':'+str(x.minute)+':'+str(x.second)+']')
                 else:
                     pass
 
@@ -71,7 +75,7 @@ class Server:
 
 
 def main():
-    s = Server('140.138.145.20', 8000)
+    s = Server('140.138.145.11', 8000)
     #print('Welcome to chat room!')
     while True:
         s.checkConnection()
