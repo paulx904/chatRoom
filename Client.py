@@ -7,15 +7,15 @@ class Client:
         self.sock = sock
         self.sock.connect((host, port))
         self.sock.send(b'1')
-        nickname=input('Input your nickname:')
-        self.sock.send(nickname.encode())
-        print('Now Lets Chat, ',nickname)
-
+        self.sock.send(nickName.encode())
+        print('Now Lets Chat, ',nickName)
+        print(nickName,':')
     def sendThreadFunc(self):
         while True:
             try:
                 myword = input()
                 self.sock.send(myword.encode())
+                #print(nickName,':')
             except ConnectionAbortedError:
                 print('Server closed this connection!')
             except ConnectionResetError:
@@ -25,7 +25,11 @@ class Client:
         while True:
             try:
                 otherword = self.sock.recv(1024) # socket.recv(recv_size)
-                print(otherword.decode())
+                if otherword:
+                    print(otherword.decode())
+                    print(nickName,':')
+                else:
+                    pass
             except ConnectionAbortedError:
                 print('Server closed this connection!')
 
@@ -33,8 +37,7 @@ class Client:
                 print('Server is closed!')
 
 def main():
-    c = Client('140.138.145.20', 8000)
-    print('Welcome to chat room!\nInput your nickname:')
+    c = Client('140.138.145.11', 8000)
     th1 = threading.Thread(target=c.sendThreadFunc)
     th2 = threading.Thread(target=c.recvThreadFunc)
     threads = [th1, th2]
@@ -44,5 +47,6 @@ def main():
     t.join()
 
 if __name__ == "__main__":
-    print('Welcome to chat room')
+    print('Welcome to chat room!')
+    nickName = input('input your nickname: ')
     main()
