@@ -17,6 +17,7 @@ class Server:
         print('Server', socket.gethostbyname(host), 'listening ...')
         self.mylist = list()
         self.mydict = dict()
+        self.count =0
 
     def checkConnection(self):
         connection, addr = self.sock.accept()
@@ -51,8 +52,10 @@ class Server:
         nickname = myconnection.recv(1024).decode()
         self.mydict[myconnection.fileno()] = nickname
         self.mylist.append(myconnection)
+        self.count=self.count+1
         print('connection', connNumber, ' has nickname :', nickname)
         self.tellOthers(connNumber, '【hint：'+self.mydict[connNumber]+' in the chat room】')
+        self.tellOthers(connNumber, '【hint：'+ str(self.count)+'  people in chat room】')
         while True:
             try:
                 recvedMsg = myconnection.recv(1024).decode()
@@ -70,6 +73,8 @@ class Server:
 
                 print(self.mydict[connNumber], 'exit, ', len(self.mylist), ' person left')
                 self.tellOthers(connNumber, '【[hint]：'+self.mydict[connNumber]+' leave the chat room.】')
+                self.count= self.count-1
+                self.tellOthers(connNumber, '【hint：'+ str(self.count)+'  people in chat room】')
                 myconnection.close()
                 return
 
