@@ -64,6 +64,8 @@ class Server:
                 except:
                     pass
 
+                print(self.mydict[connNumber], 'exit, ', len(self.mylist), ' person left')
+                self.tellOthers(connNumber, '【[hint]：'+self.mydict[connNumber]+' leave the chat room.】')
                 myconnection.close()
                 return
 
