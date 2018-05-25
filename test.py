@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow,QApplication
+from PyQt5.QtCore import *
 import example_ui
 import sys
 class Main(QMainWindow,example_ui.Ui_MainWindow):
@@ -22,6 +23,7 @@ class Main(QMainWindow,example_ui.Ui_MainWindow):
         self.lineEdit_2.setEnabled(True)
     def send(self):
         text=self.lineEdit_2.text()
+        self.textBrowser.setAlignment(Qt.AlignRight)
         self.textBrowser.append(text)
         self.textBrowser.update()
         self.lineEdit_2.setText("")
