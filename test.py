@@ -10,10 +10,10 @@ class Main(QMainWindow,example_ui.Ui_MainWindow):
         self.pushButton_2.setEnabled(False)
         self.lineEdit_2.setEnabled(False)
     def login(self):
-        text=self.lineEdit.text()
-        self.textBrowser.append("Welcome to chat room! "+text)
+        nickName=self.lineEdit.text()
+        self.textBrowser.append("Welcome to chat room! "+nickName)
         self.textBrowser.update()
-        self.textBrowser.append("Now Lets Chat, "+text)
+        self.textBrowser.append("Now Lets Chat, "+nickName)
         self.textBrowser.update()
         self.lineEdit.setText("")
         self.pushButton.setEnabled(False)
