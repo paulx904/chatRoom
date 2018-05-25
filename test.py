@@ -15,6 +15,7 @@ class Main(QMainWindow,example_ui.Ui_MainWindow):
         self.textBrowser.append("Welcome to chat room! "+nickName)
         self.textBrowser.update()
         self.textBrowser.append("Now Lets Chat, "+nickName)
+        self.textBrowser.append("\n)
         self.textBrowser.update()
         self.lineEdit.setText("")
         self.pushButton.setEnabled(False)
