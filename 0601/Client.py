@@ -51,6 +51,8 @@ class Client(QMainWindow, right_ui.Ui_loginButton):
     def send(self):#11
         name = self.nickName.text()#nickname是暱稱
         self.sock.send(name.encode())
+        password=self.password.text() #password是密碼
+        self.password.setText("***") #密碼輸出點點
         self.chaty.update()
         self.nickName.setText("")
         self.send_text.setEnabled(True)
