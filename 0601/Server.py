@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 import socket
 import threading
 import datetime
@@ -16,6 +15,7 @@ class Server:
         print('Server', socket.gethostbyname(host), 'listening ...')
         self.mylist = list()
         self.namelist = list()
+        self.count = 0
 
     def checkConnection(self):
         connection, addr = self.sock.accept()
@@ -25,13 +25,15 @@ class Server:
             buf = connection.recv(1024).decode()
             if buf == '1':
                 # start a thread for new connection
-                Username = connection.recv(1024).decode()
-                welcome = 'welcome to chat room, ' + Username + '!\n'
+                self.Username = connection.recv(1024).decode()
+                welcome = 'welcome to chat room, ' + self.Username + '!\n'
                 connection.send(welcome.encode())
-                lets = 'Now Lets Chat ' + Username
+                lets = 'Now Lets Chat ' + self.Username
                 connection.send(lets.encode())
-                self.tellOthers(connection.fileno(), 'SYSTEM: ' + Username + ' in the chat room')
-                mythread = threading.Thread(target=self.subThreadIn, args=(connection, Username, connection.fileno()))
+                self.count=self.count+1
+                self.tellOthers(connection.fileno(), '【SYSTEM: ' + self.Username + '  in the chat room, and now have '+str(self.count)+' people】')
+                #self.tellOthers(connection.fileno(), '【SYSTEM:NOW' + self.count+'  PEOPLE】')
+                mythread = threading.Thread(target=self.subThreadIn, args=(connection, self.Username, connection.fileno()))
                 mythread.setDaemon(True)
                 mythread.start()
             else:
@@ -65,17 +67,18 @@ class Server:
                     self.mylist.remove(myconnection)
                 except:
                     pass
-
+                self.count=self.count-1
+                self.tellOthers(connNumber, '【SYSTEM: ' + self.Username + '  leave the chat room, and now have ' + str(self.count) +'  people】')
+                #self.tellOthers(connNumber,
                 myconnection.close()
                 return
 
 
 def main():
-    s = Server('140.138.145.20', 8000)
+    s = Server('140.138.145.1', 8000)
     while True:
         s.checkConnection()
 
 
 if __name__ == "__main__":
     main()
-
