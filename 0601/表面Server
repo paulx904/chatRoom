@@ -1,0 +1,117 @@
+# -*- encoding: utf-8 -*-
+from PyQt5.QtWidgets import QMainWindow, QApplication
+import left_ui
+import sys
+import socket
+import threading
+import datetime
+import InitDB as dbChatRoom
+from time import gmtime, strftime
+
+class Server(QMainWindow, left_ui.Ui_MainWindow):
+    def __init__(self, host, port):
+        super(self.__class__, self).__init__()
+        self.setupUi(self)
+        self.add_button.clicked.connect(self.add_f)
+        self.delete_button.clicked.connect(self.del_f)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = sock
+        self.sock.bind((host, port))
+        self.sock.listen(5)
+        print('Server', socket.gethostbyname(host), 'listening ...')
+        self.mylist = list()
+        self.namelist = list()
+        self.checkBox.setText('')
+
+    def add_f(self):
+        try:
+            mynickname = self.nickname.text()
+            mypassword = self.password.text()
+            self.checkBox.setText(mynickname)
+            dbChatRoom.DataBaseChatRoom.insertUser(self,mynickname,mypassword)
+            self.nickname.setText("")
+            self.password.setText("")
+        except:
+            pass
+
+    def del_f(self):
+        try:
+            self.checkBox.setText('')
+        except:
+            pass
+
+    def checkConnection(self):
+        connection, addr = self.sock.accept()
+        print('Accept a new connection', connection.getsockname(), connection.fileno())
+
+        try:
+            buf = connection.recv(1024).decode()
+            if buf == '1':
+                # start a thread for new connection
+                Username = connection.recv(1024).decode()
+                welcome = 'welcome to chat room, ' + Username + '!\n'
+                connection.send(welcome.encode())
+                lets = 'Now Lets Chat ' + Username
+                connection.send(lets.encode())
+                self.tellOthers(connection.fileno(), 'SYSTEM: ' + Username + ' in the chat room')
+                mythread = threading.Thread(target=self.subThreadIn, args=(connection, Username, connection.fileno()))
+                mythread.setDaemon(True)
+                mythread.start()
+            else:
+                connection.send(b'please go out!')
+                connection.close()
+        except:
+            pass
+
+    # send whatToSay to every except people in exceptNum
+    def tellOthers(self, exceptNum, whatToSay):
+        for c in self.mylist:
+            if c.fileno() != exceptNum:
+                try:
+                    c.send(whatToSay.encode())
+                except:
+                    pass
+
+    def subThreadIn(self, myconnection, myname, connNumber):
+        self.mylist.append(myconnection)
+        while True:
+            try:
+                recvedMsg = myconnection.recv(1024).decode()
+                if recvedMsg:
+                    x=datetime.datetime.now()
+                    self.tellOthers(connNumber, myname + ": " + recvedMsg + "\t" + "[" + str(x.hour).zfill(2) + ":" + str(x.minute).zfill(2) + ":" + str(x.second).zfill(2) + "]")
+                else:
+                    pass
+
+            except (OSError, ConnectionResetError):
+                try:
+                    self.mylist.remove(myconnection)
+                except:
+                    pass
+
+                myconnection.close()
+                return
+
+    #def nickname_f(self):
+        #name = self.nickname.text()
+        #self.sock.send(name.encode())
+        #self.textBrowser.update()
+        #self.nickname.setText("")
+        #th2 = threading.Thread(target=self.recvThreadFunc)
+        #th2.setDaemon(True)
+        #th2.start()
+
+
+def main():
+    s = Server('140.138.145.21', 8000)
+    while True:
+        s.checkConnection()
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    MainWindow = Server('140.138.145.21', 8000)
+    MainWindow.show()
+    sys.exit(app.exec_())
+    main()
+
